@@ -1,11 +1,15 @@
 package domain;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public class Tabuleiro {
 
-    private Optional<Jogador> championPlayer = Optional.empty();
+    private Jogador championPlayer;
     private boolean gameTied = false;
+    private Map<String, String> positionMap;
 
     private char[][] tabuleiro = {
             {'_', '_', '_'},
@@ -13,9 +17,16 @@ public class Tabuleiro {
             {'_', '_', '_'}
     };
 
+    private String[][] instructions = {
+            {"11", "12", "13"},
+            {"21", "22", "23"},
+            {"31", "32", "33"}
+    };
+
 
     public Tabuleiro() {
         clear();
+        positionMap = new HashMap<>();
     }
 
     public void clear() {
@@ -26,12 +37,53 @@ public class Tabuleiro {
         }
     }
 
+    public Optional<Jogador> getChampionPlayer() {
+        return Optional.ofNullable(championPlayer);
+    }
+
+    public boolean hasPosition(String s) {
+        return positionMap.containsKey(s);
+    }
+
     public void show() {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 System.out.print(tabuleiro[i][j] + " ");
             }
             System.out.println();
+        }
+    }
+
+    public void showInstruction() {
+
+        positionMap.put("11", "linha=1, coluna=1");
+        positionMap.put("12", "linha=1, coluna=2");
+        positionMap.put("13", "linha=1, coluna=3");
+        positionMap.put("21", "linha=2, coluna=1");
+        positionMap.put("22", "linha=2, coluna=2");
+        positionMap.put("23", "linha=2, coluna=3");
+        positionMap.put("31", "linha=3, coluna=1");
+        positionMap.put("32", "linha=3, coluna=2");
+        positionMap.put("33", "linha=3, coluna=3");
+        System.out.println("Você deve escolher uma posição dessas, que esteja livre");
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                System.out.print(instructions[i][j] + " ");
+            }
+            System.out.println();
+        }
+
+        Set<Map.Entry<String, String>> entries = positionMap.entrySet();
+        int count = 0;
+        for (Map.Entry<String, String> entry : entries) {
+            System.out.print(entry.getKey() + " ");
+            System.out.print("[" + entry.getValue() + "] ");
+            count++;
+            if (count == 3) {
+                System.out.println();
+                count = 0;
+            }
         }
     }
 
@@ -57,7 +109,7 @@ public class Tabuleiro {
 
     private void updateStatus(Jogador jogador) {
         if (boardHasWinner())
-            championPlayer = Optional.of(jogador);
+            championPlayer = jogador;
         if (isGameEmpatado()) {
             gameTied = true;
         }
@@ -195,7 +247,7 @@ public class Tabuleiro {
         return false;
     }
 
-    private boolean isGameOver() {
+    public boolean isGameOver() {
         return (boardHasWinner() || isFullBoard());
     }
 

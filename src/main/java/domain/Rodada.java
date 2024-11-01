@@ -1,9 +1,6 @@
 package domain;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 
 public class Rodada {
     private List<Jogador> jogadores;
@@ -11,24 +8,32 @@ public class Rodada {
     private Jogador jogadorVencedor;
     private boolean empate = false;
     private boolean rodadaEncerrada = false;
-    private Jogador inicial;
+    private Jogador jogadorInicial;
     private Jogador jogadorAtual;
 
 
-    private Rodada(Builder builder) {
+    private Rodada() {
+    }
+
+    private Rodada(BuilderRodada builder) {
         this.jogadores = builder.jogadores;
+        start();
     }
 
-
-    private void setVencedorDaRodada(String simbolo) {
-        jogadores.stream().forEach(jogador -> {
-            if (simbolo.equals(jogador.getSimbolo())) {
-            }
-        });
+    public void start() {
+        sortearJogadorInicial();
     }
 
-    public Jogador getJogadorVencedor() {
-        return jogadorVencedor;
+    public Optional<Jogador> getJogadorVencedor() {
+        return Optional.ofNullable(jogadorVencedor);
+    }
+
+    public void showInstruction() {
+        tabuleiro.showInstruction();
+    }
+
+    public void setJogadorAtual(Jogador jogadorAtual) {
+        this.jogadorAtual = jogadorAtual;
     }
 
     public void jogar(Jogador jogador, Pair pair) {
@@ -38,44 +43,86 @@ public class Rodada {
 
         if (rodadaEncerrada)
             throw new RuntimeException("Rodada encerrada!");
-
-        if (!jogador.equals(jogadorAtual)) {
-            jogadorAtual = jogador;
+        try {
             tabuleiro.jogar(pair, jogador);
+            jogadorAtual = jogador;
+            updateState();
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao jogar o jogador!", e);
         }
-        updateState();
+    }
+
+    public boolean hasPosition(String s) {
+        return tabuleiro.hasPosition(s);
     }
 
     private void updateState() {
-        if (tabuleiro.boardHasWinner()) {
-            setVencedorDaRodada();
-        }
+        if (tabuleiro.boardHasWinner())
+            tabuleiro.getChampionPlayer().ifPresent(this::setJogadorVencedor);
         if (tabuleiro.isFullBoard())
             rodadaEncerrada = tabuleiro.isFullBoard();
-
     }
 
+    public Optional<Jogador> getJogadorAtual() {
+        return Optional.ofNullable(jogadorAtual);
+    }
 
-    private static class Builder {
-        private List<Jogador> jogadores = new ArrayList<Jogador>(2);
+    public Optional<Jogador> getJogadorInicial() {
+        return Optional.ofNullable(jogadorInicial);
+    }
 
-        public Builder addJogador(Jogador jogador) {
-            jogadores.add(jogador);
-            return this;
-        }
+    public List<Jogador> getJogadores() {
+        return jogadores;
+    }
 
-        public Rodada builder() {
-            return new Rodada(this);
-        }
+    private void setJogadorVencedor(Jogador jogadorVencedor) {
+        this.jogadorVencedor = jogadorVencedor;
     }
 
     private void sortearJogadorInicial() {
         if (jogadores.size() < 2) {
             throw new IllegalArgumentException("Necessita de dois jogadores para uma rodada!");
         }
+        int i = getAnInt(0, 1);
+        this.jogadorInicial = jogadores.get(i);
+        jogadorAtual = jogadorInicial;
+    }
+
+    private int getAnInt(int min, int max) {
         Random random = new Random();
-        int min = 1, max = 2;
-        int i = random.nextInt(max - min + 1) + min;
-        this.inicial = jogadores.get(i);
+        return random.nextInt(max - min + 1) + min;
+    }
+
+    public static class BuilderRodada {
+        private List<Jogador> jogadores = new ArrayList<>(2);
+
+        public BuilderRodada addJogador(Jogador jogador) {
+            if (jogadores.size() == 2) {
+                throw new IllegalArgumentException("Só são permitidos dois jogadores");
+            }
+            jogadores.add(jogador);
+            return this;
+        }
+
+        public Rodada build() {
+            if (jogadores.size() != 2) {
+                throw new IllegalArgumentException("São necessários exatamente dois jogadores");
+            }
+            return new Rodada(this);
+        }
+    }
+
+    private void verificarFimDeJogo() {
+        if (tabuleiro.isGameOver()) {
+            rodadaEncerrada = true;
+
+            if (tabuleiro.boardHasWinner())
+                setJogadorVencedor(tabuleiro.getChampionPlayer()
+                        .orElseThrow(() -> new RuntimeException("Game Over sem vencedor!!!")));
+
+        } else if (tabuleiro.isGameEmpatado()) {
+            empate = true;
+            jogadorVencedor = null;
+        }
     }
 }
