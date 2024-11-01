@@ -3,14 +3,32 @@ import java.util.Arrays;
 public class Aplication {
 
     public static void main(String[] args) {
+        Aplication aplication = new Aplication();
+        aplication.run();
+    }
 
-        Jogador jogador1 = new Jogador("Jose", "X");
-        Jogador jogador2 = new Jogador("Pedro", "O");
 
-        Tabuleiro tabuleiro = new Tabuleiro(Arrays.asList(jogador1, jogador2));
-        tabuleiro.mostraTabuleiro();
-        boolean gameOver = (tabuleiro.isGameOver());
-        System.out.println("Vencedor= "+tabuleiro.getVencedorDaRodada());
-        System.out.println(gameOver);
+    private void run() {
+        mostrarInstrucoes();
+        Jogador jogador1 = new Jogador("Jose", 'X');
+        Jogador jogador2 = new Jogador("Pedro", 'O');
+
+    }
+
+
+    private void mostrarInstrucoes() {
+
+        String init = """
+                
+                                                                               \s
+                    |                       |         .    ,     |    |        \s
+                    |,---.,---.,---.    ,---|,---.    |    |,---.|    |---.,---.
+                    ||   ||   ||   |    |   |,---|     \\  / |---'|    |   |,---|
+                `---'`---'`---|`---'    `---'`---^      `'  `---'`---'`   '`---^
+                          `---'                                                \s
+                
+                """;
+        System.out.println("Bem vindo!");
+        System.out.println(init);
     }
 }

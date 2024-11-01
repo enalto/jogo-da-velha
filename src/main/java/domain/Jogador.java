@@ -1,12 +1,14 @@
+package domain;
+
 import java.util.Objects;
 import java.util.UUID;
 
 public class Jogador {
     private UUID uuid;
     private String nome;
-    private String simbolo;
+    private char simbolo;
 
-    public Jogador(String nome, String simbolo) {
+    public Jogador(String nome, char simbolo) {
         uuid = UUID.randomUUID();
         this.nome = nome;
         this.simbolo = simbolo;
@@ -20,7 +22,7 @@ public class Jogador {
         return nome;
     }
 
-    public String getSimbolo() {
+    public char getSimbolo() {
         return simbolo;
     }
 
@@ -28,7 +30,7 @@ public class Jogador {
         this.nome = nome;
     }
 
-    public void setSimbolo(String simbolo) {
+    public void setSimbolo(char simbolo) {
         this.simbolo = simbolo;
     }
 
