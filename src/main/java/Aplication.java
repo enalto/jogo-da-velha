@@ -18,93 +18,126 @@ public class Aplication {
 
     private void run() {
         mostrarInstrucoes();
-
+        System.out.println("-".repeat(60));
 
         Scanner scanner = new Scanner(System.in);
-        while (true) {
+        Optional<List<Jogador>> jogadores = Optional.empty();
+        boolean continuar = false;
 
-            Optional<List<Jogador>> jogadores = leituraDadosDosJogadores();
+        while (true) {
+            if (!continuar)
+                jogadores = leituraDadosDosJogadores();
+
             if (jogadores.isEmpty())
-                break;
+                throw new RuntimeException("Erro fatal...");
 
             BuilderRodada builder = new BuilderRodada();
             Rodada rodada = builder.addJogador(jogadores.get().get(0))
                     .addJogador(jogadores.get().get(1))
                     .build();
 
-            Jogador jogador = rodada.getJogadorInicial()
-                    .orElseThrow(() -> new RuntimeException("Jogador inicial não definido."));
+            Optional<Jogador> jogadorDaVez = rodada.getJogadorDaVez();
+            if (jogadorDaVez.isEmpty())
+                throw new RuntimeException("Jogador da vez não existe.");
 
-            System.out.println("Jogo será iniciado por: " + jogador.getNome());
-            System.out.println(jogador.getNome() + " seu simbolo é= " + jogador.getSimbolo());
+            System.out.println("-".repeat(60));
 
-            rodada.setJogadorAtual(jogador);
+            String messageFormatted = String.format("Rodada será iniciado pelo jogador [%s, Simbolo= %c]",
+                    jogadorDaVez.get().getNome().toUpperCase(), jogadorDaVez.get().getSimbolo());
 
-            while (true) {
-                rodada.showInstruction();
+            System.out.println(messageFormatted);
 
-                String position = ValidarInput.validateInput(scanner, "Entre com posicao, [linha,coluna]",
+            rodada.showInstruction();
+            while (!rodada.gameOver()) {
+
+                rodada.getTabuleiro().imprimirTabuleiro();
+                jogadorDaVez = rodada.getJogadorDaVez();
+
+                String prompt = String.format("%s =%c ,Em qual celula quer jogar?, [linha,coluna]: ",
+                        jogadorDaVez.get().getNome().toUpperCase(), jogadorDaVez.get().getSimbolo());
+
+                String position = ValidarInput.validateInput(scanner, prompt,
                         (s) -> !s.isEmpty() && rodada.hasPosition(s));
 
                 int linha = Integer.parseInt(String.valueOf(position.charAt(0)));
                 int coluna = Integer.parseInt(String.valueOf(position.charAt(1)));
 
                 try {
-                    rodada.jogar(jogador, new Pair(linha, coluna));
+                    rodada.jogar(jogadorDaVez.get(), new Pair(linha - 1, coluna - 1));
                 } catch (RuntimeException e) {
                     System.out.println(e.getMessage());
                 }
+            }
+            System.out.println("Rodada encerrada.");
+            rodada.getTabuleiro().imprimirTabuleiro();
 
+            if (rodada.getJogadorVencedor().isPresent()) {
+                String prompt = String.format("%s=%c, Parabens você é o Jogador vencedor !!!",
+                        jogadorDaVez.get().getNome().toUpperCase(), jogadorDaVez.get().getSimbolo());
+                System.out.println(prompt);
             }
 
-        }
+            if (rodada.isRodadaEmpatada()) {
+                System.out.println("Jogo empatado.");
+                System.out.println("Não temos vencedor!!!");
+            }
 
+            String novaRodada = ValidarInput.validateInput(scanner, "Deseja iniciar nova rodada com os mesmos jogadores? (s/n)",
+                    (result) -> (result.equalsIgnoreCase("s")
+                            || result.equalsIgnoreCase("n")));
+
+            if (novaRodada.equals("s")) {
+                continuar = true;
+                continue;
+            }
+            System.out.println("Saindo...");
+            break;
+        }
 
     }
 
 
-}
+    private Optional<List<Jogador>> leituraDadosDosJogadores() {
+        Scanner scanner = new Scanner(System.in);
+        Optional<List<Jogador>> listResult = Optional.empty();
 
-private Optional<List<Jogador>> leituraDadosDosJogadores() {
-    Scanner scanner = new Scanner(System.in);
-    Optional<List<Jogador>> listResult = Optional.empty();
+        String nomeA = ValidarInput
+                .validateInput(scanner, "Nome do primeiro jogador1 ou [Enter=sair]: ",
+                        (s) -> s.matches("[a-zA-Z0-9]{3,}") || s.isEmpty());
+        if (nomeA.isEmpty())
+            return listResult;
 
-    String nomeA = ValidarInput
-            .validateInput(scanner, "Nome do primeiro jogador: ",
-                    (s) -> s.matches("[a-zA-Z0-9]{3,}") || s.isEmpty());
-    if (nomeA.isEmpty())
-        return listResult;
+        Jogador jogadorA = new Jogador(nomeA, 'X');
 
-    Jogador jogadorA = new Jogador(nomeA, 'X');
+        String nomeB = ValidarInput
+                .validateInput(scanner, "Nome do segundo jogador2 ou [Enter=sair]: ",
+                        (s) -> s.matches("[a-zA-Z0-9]{3,}") || s.isEmpty());
+        if (nomeB.isEmpty())
+            return listResult;
 
-    String nomeB = ValidarInput
-            .validateInput(scanner, "Nome do segundo jogador: ",
-                    (s) -> s.matches("[a-zA-Z0-9]{3,}") || s.isEmpty());
-    if (nomeB.isEmpty())
-        return listResult;
+        Jogador jogadorB = new Jogador(nomeB, 'O');
 
-    Jogador jogadorB = new Jogador(nomeB, 'O');
-
-    List<Jogador> jogadores = new ArrayList<>(2);
-    jogadores.add(jogadorA);
-    jogadores.add(jogadorB);
-    return Optional.of(jogadores);
-}
+        List<Jogador> jogadores = new ArrayList<>(2);
+        jogadores.add(jogadorA);
+        jogadores.add(jogadorB);
+        return Optional.of(jogadores);
+    }
 
 
-private void mostrarInstrucoes() {
+    private void mostrarInstrucoes() {
 
-    String init = """
-            
-                                                                           \s
-                |                       |         .    ,     |    |        \s
-                |,---.,---.,---.    ,---|,---.    |    |,---.|    |---.,---.
-                ||   ||   ||   |    |   |,---|     \\  / |---'|    |   |,---|
-            `---'`---'`---|`---'    `---'`---^      `'  `---'`---'`   '`---^
-                      `---'                                                \s
-            
-            """;
-    System.out.println("Bem vindo!");
-    System.out.println(init);
-}
+        String init = """
+                
+                                                                               \s
+                    |                       |         .    ,     |    |        \s
+                    |,---.,---.,---.    ,---|,---.    |    |,---.|    |---.,---.
+                    ||   ||   ||   |    |   |,---|     \\  / |---'|    |   |,---|
+                `---'`---'`---|`---'    `---'`---^      `'  `---'`---'`   '`---^
+                          `---'                                                \s
+                
+                """;
+        System.out.println("Bem vindo!");
+        System.out.println(init);
+    }
+
 }

@@ -9,13 +9,11 @@ public class Tabuleiro {
 
     private Jogador championPlayer;
     private boolean gameTied = false;
+    private boolean gameOver = false;
     private Map<String, String> positionMap;
 
-    private char[][] tabuleiro = {
-            {'_', '_', '_'},
-            {'_', '_', '_'},
-            {'_', '_', '_'}
-    };
+    private static char EMPTY_CELL = '-';
+    private char[][] tabuleiro = new char[3][3];
 
     private String[][] instructions = {
             {"11", "12", "13"},
@@ -25,14 +23,14 @@ public class Tabuleiro {
 
 
     public Tabuleiro() {
-        clear();
+        inicializarTabuleiro();
         positionMap = new HashMap<>();
     }
 
-    public void clear() {
+    public void inicializarTabuleiro() {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                tabuleiro[i][j] = '_';
+                tabuleiro[i][j] = EMPTY_CELL;
             }
         }
     }
@@ -45,12 +43,15 @@ public class Tabuleiro {
         return positionMap.containsKey(s);
     }
 
-    public void show() {
+    public void imprimirTabuleiro() {
+        System.out.println("-".repeat(13));
         for (int i = 0; i < 3; i++) {
+            System.out.print("| ");
             for (int j = 0; j < 3; j++) {
-                System.out.print(tabuleiro[i][j] + " ");
+                System.out.print(tabuleiro[i][j] + " | ");
             }
             System.out.println();
+            System.out.println("-".repeat(13));
         }
     }
 
@@ -89,30 +90,34 @@ public class Tabuleiro {
 
     public void jogar(Pair pair, Jogador jogador) {
         if (pair.i() < 0 || pair.i() >= 3 || pair.j() < 0 || pair.j() >= 3)
-            throw new IndexOutOfBoundsException();
+            throw new RuntimeException(String.format("%s, Escolha uma celula válida", jogador.getNome()));
 
         if (boardHasWinner())
-            throw new RuntimeException("Partida já tem um vencedor");
+            throw new RuntimeException(String.format("%s, partida já tem um vencedor", jogador.getNome()));
 
         if (isGameOver())
-            throw new RuntimeException("Jogo encerrado!");
+            throw new RuntimeException(String.format("%s, Jogo encerrado!", jogador.getNome()));
 
         if (isFullBoard())
-            throw new RuntimeException("Tabuleiro cheio.");
+            throw new RuntimeException(String.format("%s, Tabuleiro cheio.", jogador.getNome()));
 
-        if (!isEmptyCell(pair))
-            throw new RuntimeException("Posição não está livre para jogada.");
+        if (!isEmptyCell(tabuleiro, pair))
+            throw new RuntimeException(String.format("%s, Posição não está livre para jogada.", jogador.getNome()));
 
         tabuleiro[pair.i()][pair.j()] = jogador.getSimbolo();
         updateStatus(jogador);
     }
 
     private void updateStatus(Jogador jogador) {
-        if (boardHasWinner())
+        if (boardHasWinner()) {
             championPlayer = jogador;
+            gameOver = true;
+        }
         if (isGameEmpatado()) {
             gameTied = true;
+            gameOver = true;
         }
+
     }
 
 
@@ -121,32 +126,32 @@ public class Tabuleiro {
      *
      * @return
      */
-    private boolean isEqualPrincipalDiagonal() {
+    public boolean isEqualPrincipalDiagonal(char[][] charArray) {
         boolean equalPrincipalDiagonal = true;
-        char firstElementPrincipalDiagonal = tabuleiro[0][0];
+        char firstElementPrincipalDiagonal = charArray[0][0];
 
         for (int i = 1; i < 3; i++) {
-            if (isEmptyCell(new Pair(i, 2 - 1))) {
+            if (isEmptyCell(charArray, new Pair(i, 2 - i))) {
                 equalPrincipalDiagonal = false;
-                continue;
+                break;
             }
-            if (tabuleiro[i][i] != firstElementPrincipalDiagonal) {
+            if (charArray[i][i] != firstElementPrincipalDiagonal) {
                 equalPrincipalDiagonal = false;
             }
         }
         return equalPrincipalDiagonal;
     }
 
-    private boolean isEqualSecundaryDiagonal() {
+    public boolean isEqualSecundaryDiagonal(char[][] charArray) {
         boolean equalSecundaryDiagonal = true;
-        char firstElementDiagonalSecundary = tabuleiro[0][2];
+        char firstElementDiagonalSecundary = charArray[0][2];
 
         for (int i = 1; i < 3; i++) {
-            if (isEmptyCell(new Pair(i, 2 - 1))) {
+            if (isEmptyCell(charArray, new Pair(i, 2 - i))) {
                 equalSecundaryDiagonal = false;
-                continue;
+                break;
             }
-            if (tabuleiro[i][2 - i] != firstElementDiagonalSecundary) {
+            if (charArray[i][2 - i] != firstElementDiagonalSecundary) {
                 equalSecundaryDiagonal = false;
             }
         }
@@ -159,25 +164,24 @@ public class Tabuleiro {
      * @return
      */
 
-    private boolean isEmptyCell(Pair pair) {
-        return tabuleiro[pair.i()][pair.j()] == '_';
+    public boolean isEmptyCell(char[][] array, Pair pair) {
+        return array[pair.i()][pair.j()] == EMPTY_CELL;
     }
 
-    private boolean lineElementsEqual() {
+    public boolean lineElementsEqual(char[][] charArray) {
         boolean elementosIguais = true;
         for (int i = 0; i < 3; i++) {
-            if (isEmptyCell(new Pair(i, 0))) {
-                elementosIguais = false;
-                break;
-            }
+
             elementosIguais = true;
-            char firstElement = tabuleiro[i][0];
+            char firstElement = charArray[i][0];
             for (int j = 1; j < 3; j++) {
-                if (tabuleiro[i][j] != firstElement) {
+                if ((charArray[i][j] != firstElement) || isEmptyCell(charArray, new Pair(i, 0))) {
                     elementosIguais = false;
                     break;
                 }
             }
+            if (elementosIguais)
+                break;
         }
         return elementosIguais;
     }
@@ -187,21 +191,19 @@ public class Tabuleiro {
      *
      * @return
      */
-    private boolean columnElementsEqual() {
+    public boolean columnElementsEqual(char[][] charArray) {
         boolean elementosIguais = true;
         for (int j = 0; j < 3; j++) {
-            char firstElement = tabuleiro[0][j];
-            if (isEmptyCell(new Pair(0, j))) {
-                elementosIguais = false;
-                break;
-            }
+            char firstElement = charArray[0][j];
             elementosIguais = true;
             for (int i = 1; i < 3; i++) {
-                if (tabuleiro[i][j] != firstElement) {
+                if ((charArray[i][j] != firstElement) || isEmptyCell(charArray, new Pair(0, j))) {
                     elementosIguais = false;
                     break;
                 }
             }
+            if (elementosIguais)
+                break;
         }
         return elementosIguais;
     }
@@ -213,10 +215,14 @@ public class Tabuleiro {
      * @return
      */
     public boolean boardHasWinner() {
-        return (lineElementsEqual() ||
-                isEqualPrincipalDiagonal() ||
-                isEqualSecundaryDiagonal() ||
-                columnElementsEqual());
+        return (lineElementsEqual(this.tabuleiro) ||
+                isEqualPrincipalDiagonal(this.tabuleiro) ||
+                isEqualSecundaryDiagonal(this.tabuleiro) ||
+                columnElementsEqual(this.tabuleiro));
+    }
+
+    public boolean equal(int i, int j) {
+        return i == j;
     }
 
     /**
@@ -227,7 +233,7 @@ public class Tabuleiro {
     public boolean isFullBoard() {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                if (tabuleiro[i][j] == '_') {
+                if (tabuleiro[i][j] == EMPTY_CELL) {
                     return false;
                 }
             }
