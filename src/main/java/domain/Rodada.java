@@ -19,6 +19,9 @@ public class Rodada {
         start();
     }
 
+    /**
+     * Inicializa a rodada
+     */
     public void start() {
         if (jogadores.size() < 2)
             throw new RuntimeException("Precisamos de pelo menos dois jogadores para iniciar.");
@@ -26,32 +29,60 @@ public class Rodada {
         montarQueueDejogadores();
     }
 
+    /**
+     * Retorna o jogador vencedor
+     * @return
+     */
     public Optional<Jogador> getJogadorVencedor() {
         return Optional.ofNullable(jogadorVencedor);
     }
 
+    /**
+     * Mostra instruções para o jogador
+     */
     public void showInstruction() {
         tabuleiro.showInstruction();
     }
 
+    /**
+     * Verifica se é fim de jogo
+     * @return
+     */
     public boolean gameOver() {
         return tabuleiro.isGameOver();
     }
 
+    /**
+     * Metodo retorna o tabuleiro da rodada
+     * @return
+     */
     public Tabuleiro getTabuleiro() {
         return tabuleiro;
     }
 
+    /**
+     * Metodo retorna se o jogo esta empatado
+     * @return
+     */
     public boolean isRodadaEmpatada() {
         return empate;
     }
 
+    /**
+     * Monta a fila de jogadores
+     */
     public void montarQueueDejogadores() {
         if (!jogadoresQueue.isEmpty())
             throw new RuntimeException("Fila de jogadores não está vazia");
         jogadoresQueue.addAll(this.jogadores);
     }
 
+
+    /**
+     * Joga numa celula que esteja livre
+     * @param jogador
+     * @param pair
+     */
     public void jogar(Jogador jogador, Pair pair) {
 
         Objects.requireNonNull(jogador);
@@ -68,10 +99,20 @@ public class Rodada {
         }
     }
 
+    /**
+     * Verifica se a posição existe no tabuleiro
+     * @param s
+     * @return
+     */
     public boolean hasPosition(String s) {
         return tabuleiro.hasPosition(s);
     }
 
+    /**
+     * Atualiza o estado do tabuleiro
+     * Se já tem vencedor
+     * se o tabuleiro já está cheio
+     */
     private void updateState() {
         boolean boardHasWinner = tabuleiro.boardHasWinner();
         boolean fullBoard = tabuleiro.isFullBoard();
@@ -86,10 +127,18 @@ public class Rodada {
         }
     }
 
+    /**
+     * Retorna o jogador da vez
+     * @return
+     */
     public Optional<Jogador> getJogadorDaVez() {
         return Optional.ofNullable(jogadoresQueue.peek());
     }
 
+    /**
+     * Metodo set para o jogador vencedor
+     * @param jogadorVencedor
+     */
     private void setJogadorVencedor(Jogador jogadorVencedor) {
         this.jogadorVencedor = jogadorVencedor;
     }
@@ -107,6 +156,9 @@ public class Rodada {
         Collections.shuffle(jogadores);
     }
 
+    /**
+     * Builder do objeto Rodada
+     */
     public static class BuilderRodada {
         private List<Jogador> jogadores = new ArrayList<>(2);
 

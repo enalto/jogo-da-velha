@@ -18,12 +18,22 @@ public class Aplication {
     private static final Logger logger = Logger.getLogger(Aplication.class.getName());
 
 
-    public static void main(String[] args) throws InterruptedException {
+    /**
+     * Metodo Main, inicio da aplicação
+     *
+     * @param args
+     * @throws InterruptedException
+     */
+    public static void main(String[] args) {
         Aplication aplication = new Aplication();
         aplication.run();
     }
 
-    private void run() throws InterruptedException {
+
+    /**
+     * Metodo principal da aplicação
+     */
+    private void run() {
         showTelaInicio();
         System.out.println("-".repeat(60));
 
@@ -38,11 +48,17 @@ public class Aplication {
             if (jogadores.isEmpty())
                 throw new RuntimeException("Erro fatal...");
 
+            /**
+             * Inicia a rodada
+             */
             BuilderRodada builder = new BuilderRodada();
             Rodada rodada = builder.addJogador(jogadores.get().get(0))
                     .addJogador(jogadores.get().get(1))
                     .build();
 
+            /**
+             * Seleciona o jogador da vez
+             */
             Jogador jogadorDaVez = rodada.getJogadorDaVez()
                     .orElseThrow(() -> new RuntimeException("Jogador da vez não existe."));
 
@@ -100,6 +116,11 @@ public class Aplication {
     }
 
 
+    /**
+     * Leitura dos dados dos jogadores
+     *
+     * @return
+     */
     private Optional<List<Jogador>> leituraDadosDosJogadores() {
         Scanner scanner = new Scanner(System.in);
         Optional<List<Jogador>> listResult = Optional.empty();
@@ -126,6 +147,13 @@ public class Aplication {
         return Optional.of(jogadores);
     }
 
+    /**
+     * Leitura da celula que se deseja jogar
+     *
+     * @param jogadorDaVez
+     * @param rodada
+     * @return
+     */
     private Pair leituraCelulaAjogar(Jogador jogadorDaVez, Rodada rodada) {
         Objects.requireNonNull(jogadorDaVez);
         Objects.requireNonNull(rodada);
@@ -139,10 +167,12 @@ public class Aplication {
 
         int linha = Integer.parseInt(String.valueOf(position.charAt(0)));
         int coluna = Integer.parseInt(String.valueOf(position.charAt(1)));
-        return new Pair(linha-1, coluna-1);
+        return new Pair(linha - 1, coluna - 1);
     }
 
-
+    /**
+     * Imprime tela de inicio
+     */
     private void showTelaInicio() {
 
         String init = """

@@ -24,6 +24,10 @@ public class Tabuleiro {
         initMapPositions();
     }
 
+    /**
+     * Inicializa o tabuleiro com celulas em branco
+     * char='-'
+     */
     public void inicializarTabuleiro() {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -32,6 +36,10 @@ public class Tabuleiro {
         }
     }
 
+    /**
+     * HasMap que contem as posições para jogar
+     * Instruções que serão mostradas aos Jogadores
+     */
     private void initMapPositions(){
         positionMap = new HashMap<>();
         positionMap.put("11", "linha=1, coluna=1");
@@ -46,15 +54,29 @@ public class Tabuleiro {
 
     }
 
+    /**
+     *
+     * Retorna o vencedor do jogo
+     * @return
+     */
     public Optional<Jogador> getChampionPlayer() {
         return Optional.ofNullable(championPlayer);
     }
 
+    /**
+     * Verifica se uma posição existe no tabuleiro
+     * @param s
+     * @return
+     */
     public boolean hasPosition(String s) {
         Objects.requireNonNull(s);
         return positionMap.containsKey(s);
     }
 
+    /**
+     * Imprime o tabuleiro
+     * @param charArray
+     */
     public void imprimirTabuleiro(char[][] charArray) {
         if (charArray == null) {
             throw new IllegalArgumentException("Tabuleiro não pode ser nulo.");
@@ -80,6 +102,9 @@ public class Tabuleiro {
         }
     }
 
+    /**
+     * Imprime o tabuleiro
+     */
     public void imprimirTabuleiro() {
         if (tabuleiro == null) {
             throw new IllegalArgumentException("Tabuleiro não pode ser nulo.");
@@ -105,8 +130,10 @@ public class Tabuleiro {
         }
     }
 
+    /**
+     * Mostra instruções aos jogadores
+     */
     public void showInstruction() {
-
         System.out.println("Você deve escolher uma posição dessas, que esteja livre");
 
         for (int i = 0; i < 3; i++) {
@@ -129,6 +156,11 @@ public class Tabuleiro {
         }
     }
 
+    /**
+     * Joga numa determinada celula
+     * @param pair
+     * @param jogador
+     */
     public void jogar(Pair pair, Jogador jogador) {
         Objects.requireNonNull(pair);
         Objects.requireNonNull(jogador);
@@ -152,6 +184,10 @@ public class Tabuleiro {
         updateStatus(jogador);
     }
 
+    /**
+     * Atualiza o estado da roada, se tem vencedor ou jogo empatado
+     * @param jogador
+     */
     private void updateStatus(Jogador jogador) {
         Objects.requireNonNull(jogador);
 
@@ -188,6 +224,11 @@ public class Tabuleiro {
         return equalPrincipalDiagonal;
     }
 
+    /**
+     * Verificado se os elementos da diagonal secundaria são iguais
+     * @param charArray
+     * @return
+     */
     public boolean isEqualSecundaryDiagonal(char[][] charArray) {
         boolean equalSecundaryDiagonal = true;
         char firstElementDiagonalSecundary = charArray[0][2];
@@ -205,16 +246,21 @@ public class Tabuleiro {
     }
 
     /**
-     * Verifica se os elementos de alguma das linhas e igual
-     *
+     * verifica se uma determinada celula do array está em branco
+     * @param array
+     * @param pair
      * @return
      */
-
     public boolean isEmptyCell(char[][] array, Pair pair) {
         Objects.requireNonNull(pair);
         return array[pair.i()][pair.j()] == EMPTY_CELL;
     }
 
+    /**
+     * Verifica se tem alguma linha com todos os elementos iguais
+     * @param charArray
+     * @return
+     */
     public boolean lineElementsEqual(char[][] charArray) {
         boolean elementosIguais = true;
         for (int i = 0; i < 3; i++) {
@@ -286,7 +332,6 @@ public class Tabuleiro {
 
     /**
      * verifica se o jogo terminou empatado
-     *
      * @return
      */
     public boolean isGameEmpatado() {
@@ -296,6 +341,10 @@ public class Tabuleiro {
         return false;
     }
 
+    /**
+     * Verifica se é fim de jogo
+     * @return
+     */
     public boolean isGameOver() {
         return (boardHasWinner() || isFullBoard());
     }
