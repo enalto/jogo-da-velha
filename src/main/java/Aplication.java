@@ -50,7 +50,7 @@ public class Aplication {
             rodada.showInstruction();
             while (!rodada.gameOver()) {
 
-                rodada.getTabuleiro().imprimirTabuleiro();
+                //rodada.getTabuleiro().imprimirTabuleiro();
                 jogadorDaVez = rodada.getJogadorDaVez();
 
                 String prompt = String.format("%s =%c ,Em qual celula quer jogar?, [linha,coluna]: ",
@@ -69,7 +69,7 @@ public class Aplication {
                 }
             }
             System.out.println("Rodada encerrada.");
-            rodada.getTabuleiro().imprimirTabuleiro();
+            //rodada.getTabuleiro().imprimirTabuleiro();
 
             if (rodada.getJogadorVencedor().isPresent()) {
                 String prompt = String.format("%s=%c, Parabens você é o Jogador vencedor !!!",

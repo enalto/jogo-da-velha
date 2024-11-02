@@ -107,21 +107,6 @@ public class Rodada {
         Collections.shuffle(jogadores);
     }
 
-    private void verificarFimDeJogo() {
-        if (tabuleiro.isGameOver()) {
-            rodadaEncerrada = true;
-
-            if (tabuleiro.boardHasWinner())
-                setJogadorVencedor(tabuleiro.getChampionPlayer()
-                        .orElseThrow(() -> new RuntimeException("Game Over sem vencedor!!!")));
-
-        } else if (tabuleiro.isGameEmpatado()) {
-            empate = true;
-            jogadorVencedor = null;
-        }
-    }
-
-
     public static class BuilderRodada {
         private List<Jogador> jogadores = new ArrayList<>(2);
 

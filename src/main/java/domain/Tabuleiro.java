@@ -24,7 +24,7 @@ public class Tabuleiro {
 
     public Tabuleiro() {
         inicializarTabuleiro();
-        positionMap = new HashMap<>();
+        initMapPositions();
     }
 
     public void inicializarTabuleiro() {
@@ -35,27 +35,8 @@ public class Tabuleiro {
         }
     }
 
-    public Optional<Jogador> getChampionPlayer() {
-        return Optional.ofNullable(championPlayer);
-    }
-
-    public boolean hasPosition(String s) {
-        return positionMap.containsKey(s);
-    }
-
-    public void imprimirTabuleiro() {
-        System.out.println("-".repeat(13));
-        for (int i = 0; i < 3; i++) {
-            System.out.print("| ");
-            for (int j = 0; j < 3; j++) {
-                System.out.print(tabuleiro[i][j] + " | ");
-            }
-            System.out.println();
-            System.out.println("-".repeat(13));
-        }
-    }
-
-    public void showInstruction() {
+    private void initMapPositions(){
+        positionMap = new HashMap<>();
 
         positionMap.put("11", "linha=1, coluna=1");
         positionMap.put("12", "linha=1, coluna=2");
@@ -66,6 +47,44 @@ public class Tabuleiro {
         positionMap.put("31", "linha=3, coluna=1");
         positionMap.put("32", "linha=3, coluna=2");
         positionMap.put("33", "linha=3, coluna=3");
+
+    }
+
+    public Optional<Jogador> getChampionPlayer() {
+        return Optional.ofNullable(championPlayer);
+    }
+
+    public boolean hasPosition(String s) {
+        return positionMap.containsKey(s);
+    }
+
+    public void imprimirTabuleiro(char[][] charArray) {
+        if (charArray == null) {
+            throw new IllegalArgumentException("Tabuleiro não pode ser nulo.");
+        }
+        if (charArray.length != 3) {
+            throw new IllegalArgumentException("Tabuleiro deve ter 3 linhas.");
+        }
+
+        for (char[] row : charArray) {
+            if (row == null || row.length != 3) {
+                throw new IllegalArgumentException("Cada linha deve ter tres elementos.");
+            }
+        }
+
+        System.out.println("-".repeat(13));
+        for (int i = 0; i < 3; i++) {
+            System.out.print("| ");
+            for (int j = 0; j < 3; j++) {
+                System.out.print(charArray[i][j] + " | ");
+            }
+            System.out.println();
+            System.out.println("-".repeat(13));
+        }
+    }
+
+    public void showInstruction() {
+
         System.out.println("Você deve escolher uma posição dessas, que esteja livre");
 
         for (int i = 0; i < 3; i++) {

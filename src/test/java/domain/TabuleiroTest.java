@@ -27,10 +27,41 @@ class TabuleiroTest {
 
     @Test
     void hasPosition() {
+        String position = new String("21");
+        boolean hasPosition = tabuleiro.hasPosition(position);
+        Assertions.assertTrue(hasPosition);
+    }
+
+
+    @Test
+    void incorrectRowCountBoard() {
+        char[][] incorrectRowCountBoard = {
+                {'X', 'O', 'X'},
+                {'O', 'X', 'O'}
+        };
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            tabuleiro.imprimirTabuleiro(incorrectRowCountBoard);
+        });
     }
 
     @Test
-    void imprimirTabuleiro() {
+    void incorrectColumnCountBoard() {
+        char[][] incorrectColumnCountBoard = {
+                {'X', 'O', 'X', 'O'},
+                {'O', 'X', 'O'},
+                {'X', 'O', 'X'}
+        };
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            tabuleiro.imprimirTabuleiro(incorrectColumnCountBoard);
+        });
+    }
+
+    @Test
+    void nullBoardArgument() {
+        char[][] nullBoard = null;
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            tabuleiro.imprimirTabuleiro(nullBoard);
+        });
     }
 
     @Test
