@@ -1,9 +1,6 @@
 package domain;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class Tabuleiro {
 
@@ -37,7 +34,6 @@ public class Tabuleiro {
 
     private void initMapPositions(){
         positionMap = new HashMap<>();
-
         positionMap.put("11", "linha=1, coluna=1");
         positionMap.put("12", "linha=1, coluna=2");
         positionMap.put("13", "linha=1, coluna=3");
@@ -55,6 +51,7 @@ public class Tabuleiro {
     }
 
     public boolean hasPosition(String s) {
+        Objects.requireNonNull(s);
         return positionMap.containsKey(s);
     }
 
@@ -77,6 +74,31 @@ public class Tabuleiro {
             System.out.print("| ");
             for (int j = 0; j < 3; j++) {
                 System.out.print(charArray[i][j] + " | ");
+            }
+            System.out.println();
+            System.out.println("-".repeat(13));
+        }
+    }
+
+    public void imprimirTabuleiro() {
+        if (tabuleiro == null) {
+            throw new IllegalArgumentException("Tabuleiro não pode ser nulo.");
+        }
+        if (tabuleiro.length != 3) {
+            throw new IllegalArgumentException("Tabuleiro deve ter 3 linhas.");
+        }
+
+        for (char[] row : tabuleiro) {
+            if (row == null || row.length != 3) {
+                throw new IllegalArgumentException("Cada linha deve ter tres elementos.");
+            }
+        }
+
+        System.out.println("-".repeat(13));
+        for (int i = 0; i < 3; i++) {
+            System.out.print("| ");
+            for (int j = 0; j < 3; j++) {
+                System.out.print(tabuleiro[i][j] + " | ");
             }
             System.out.println();
             System.out.println("-".repeat(13));
@@ -108,6 +130,9 @@ public class Tabuleiro {
     }
 
     public void jogar(Pair pair, Jogador jogador) {
+        Objects.requireNonNull(pair);
+        Objects.requireNonNull(jogador);
+
         if (pair.i() < 0 || pair.i() >= 3 || pair.j() < 0 || pair.j() >= 3)
             throw new RuntimeException(String.format("%s, Escolha uma celula válida", jogador.getNome()));
 
@@ -128,6 +153,8 @@ public class Tabuleiro {
     }
 
     private void updateStatus(Jogador jogador) {
+        Objects.requireNonNull(jogador);
+
         if (boardHasWinner()) {
             championPlayer = jogador;
             gameOver = true;
@@ -184,6 +211,7 @@ public class Tabuleiro {
      */
 
     public boolean isEmptyCell(char[][] array, Pair pair) {
+        Objects.requireNonNull(pair);
         return array[pair.i()][pair.j()] == EMPTY_CELL;
     }
 
@@ -238,10 +266,6 @@ public class Tabuleiro {
                 isEqualPrincipalDiagonal(this.tabuleiro) ||
                 isEqualSecundaryDiagonal(this.tabuleiro) ||
                 columnElementsEqual(this.tabuleiro));
-    }
-
-    public boolean equal(int i, int j) {
-        return i == j;
     }
 
     /**

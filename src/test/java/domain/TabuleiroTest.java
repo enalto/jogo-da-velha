@@ -17,21 +17,24 @@ class TabuleiroTest {
     }
 
     @Test
-    void inicializarTabuleiro() {
-
-    }
-
-    @Test
-    void getChampionPlayer() {
-    }
-
-    @Test
     void hasPosition() {
-        String position = new String("21");
-        boolean hasPosition = tabuleiro.hasPosition(position);
+        boolean hasPosition = tabuleiro.hasPosition("21");
         Assertions.assertTrue(hasPosition);
     }
 
+    @Test
+    void testNonExistPosition(){
+        boolean hasPosition = tabuleiro.hasPosition("D1");
+        Assertions.assertFalse(hasPosition);
+    }
+
+
+    @Test
+    public void testNullInputBoardPosition() {
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            tabuleiro.hasPosition(null);
+        });
+    }
 
     @Test
     void incorrectRowCountBoard() {

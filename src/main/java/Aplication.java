@@ -2,22 +2,29 @@ import domain.Jogador;
 import domain.Pair;
 import domain.Rodada;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
+import java.util.logging.Logger;
 
 import static domain.Rodada.*;
 
 public class Aplication {
 
-    public static void main(String[] args) {
+    static {
+        System.setProperty(
+                "java.util.logging.SimpleFormatter.format",
+                "[%1$tF %1$tT] [%4$-7s] %5$s %n");
+    }
+
+    private static final Logger logger = Logger.getLogger(Aplication.class.getName());
+
+
+    public static void main(String[] args) throws InterruptedException {
         Aplication aplication = new Aplication();
         aplication.run();
     }
 
-    private void run() {
-        mostrarInstrucoes();
+    private void run() throws InterruptedException {
+        showTelaInicio();
         System.out.println("-".repeat(60));
 
         Scanner scanner = new Scanner(System.in);
@@ -36,44 +43,39 @@ public class Aplication {
                     .addJogador(jogadores.get().get(1))
                     .build();
 
-            Optional<Jogador> jogadorDaVez = rodada.getJogadorDaVez();
-            if (jogadorDaVez.isEmpty())
-                throw new RuntimeException("Jogador da vez não existe.");
+            Jogador jogadorDaVez = rodada.getJogadorDaVez()
+                    .orElseThrow(() -> new RuntimeException("Jogador da vez não existe."));
 
             System.out.println("-".repeat(60));
 
-            String messageFormatted = String.format("Rodada será iniciado pelo jogador [%s, Simbolo= %c]",
-                    jogadorDaVez.get().getNome().toUpperCase(), jogadorDaVez.get().getSimbolo());
+            System.out.println("Jogo iniciado.");
+            String messageFormatted = String.format("Jogador sorteado para iniciar foi [%s, Simbolo= %c]",
+                    jogadorDaVez.getNome().toUpperCase(), jogadorDaVez.getSimbolo());
 
             System.out.println(messageFormatted);
 
             rodada.showInstruction();
             while (!rodada.gameOver()) {
 
-                //rodada.getTabuleiro().imprimirTabuleiro();
-                jogadorDaVez = rodada.getJogadorDaVez();
+                rodada.getTabuleiro().imprimirTabuleiro();
+                jogadorDaVez = rodada.getJogadorDaVez()
+                        .orElseThrow(() -> new RuntimeException("Jogador da vez não existe."));
 
-                String prompt = String.format("%s =%c ,Em qual celula quer jogar?, [linha,coluna]: ",
-                        jogadorDaVez.get().getNome().toUpperCase(), jogadorDaVez.get().getSimbolo());
-
-                String position = ValidarInput.validateInput(scanner, prompt,
-                        (s) -> !s.isEmpty() && rodada.hasPosition(s));
-
-                int linha = Integer.parseInt(String.valueOf(position.charAt(0)));
-                int coluna = Integer.parseInt(String.valueOf(position.charAt(1)));
+                Pair celulaAjogar = leituraCelulaAjogar(jogadorDaVez, rodada);
 
                 try {
-                    rodada.jogar(jogadorDaVez.get(), new Pair(linha - 1, coluna - 1));
+                    rodada.jogar(jogadorDaVez, celulaAjogar);
                 } catch (RuntimeException e) {
                     System.out.println(e.getMessage());
                 }
             }
-            System.out.println("Rodada encerrada.");
-            //rodada.getTabuleiro().imprimirTabuleiro();
+
+            rodada.getTabuleiro().imprimirTabuleiro();
+            System.out.println("Partida finalizada.");
 
             if (rodada.getJogadorVencedor().isPresent()) {
                 String prompt = String.format("%s=%c, Parabens você é o Jogador vencedor !!!",
-                        jogadorDaVez.get().getNome().toUpperCase(), jogadorDaVez.get().getSimbolo());
+                        jogadorDaVez.getNome().toUpperCase(), jogadorDaVez.getSimbolo());
                 System.out.println(prompt);
             }
 
@@ -87,10 +89,11 @@ public class Aplication {
                             || result.equalsIgnoreCase("n")));
 
             if (novaRodada.equals("s")) {
+                System.out.println("Jogo iniciado.");
                 continuar = true;
                 continue;
             }
-            System.out.println("Saindo...");
+            logger.info("Saindo...");
             break;
         }
 
@@ -123,8 +126,24 @@ public class Aplication {
         return Optional.of(jogadores);
     }
 
+    private Pair leituraCelulaAjogar(Jogador jogadorDaVez, Rodada rodada) {
+        Objects.requireNonNull(jogadorDaVez);
+        Objects.requireNonNull(rodada);
+        Scanner scanner = new Scanner(System.in);
 
-    private void mostrarInstrucoes() {
+        String prompt = String.format("%s =%c ,Em qual celula quer jogar?, [linha,coluna]: ",
+                jogadorDaVez.getNome().toUpperCase(), jogadorDaVez.getSimbolo());
+
+        String position = ValidarInput.validateInput(scanner, prompt,
+                (s) -> !s.isEmpty() && rodada.hasPosition(s));
+
+        int linha = Integer.parseInt(String.valueOf(position.charAt(0)));
+        int coluna = Integer.parseInt(String.valueOf(position.charAt(1)));
+        return new Pair(linha-1, coluna-1);
+    }
+
+
+    private void showTelaInicio() {
 
         String init = """
                 

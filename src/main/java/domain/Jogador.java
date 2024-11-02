@@ -34,17 +34,18 @@ public class Jogador {
         this.simbolo = simbolo;
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Jogador jogador = (Jogador) o;
-        return Objects.equals(uuid, jogador.uuid);
+        return simbolo == jogador.simbolo && Objects.equals(nome, jogador.nome);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(uuid);
+        return Objects.hash(nome, simbolo);
     }
 
     @Override
